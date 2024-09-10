@@ -8,6 +8,8 @@ fontsize: 25pt
 
 ## Logistics/Prerequisites
 
+* Material available/uploaded at https://github.com/louis-olive/teaching_Python
+
 * Email: louis.olive@gmail.com / louis.olive@ut-capitole.fr (copy both)
 
 * Personal or university laptop
