@@ -1,0 +1,165 @@
+---
+title: "Introduction to Python"
+subtitle: "M2 EEE/EGR 2024-2025"
+author: "Louis Olive"
+format: revealjs
+fontsize: 25pt
+---
+
+## Logistics/Prerequisites
+
+* Email: louis.olive@gmail.com / louis.olive@ut-capitole.fr (copy both)
+
+* Personal or university laptop
+
+* Google Colab as a prefered tool (easy setup) for this first class
+
+* Then a local Python stack/install. We will use miniconda/VS Code editor as described here ([Windows](https://wesmckinney.com/book/preliminaries#installation_windows)/[Linux](https://wesmckinney.com/book/preliminaries#installation_linux)/[macOS](https://wesmckinney.com/book/preliminaries#installation_mac)). We will use Quarto to publish (html, pdf, slides) our results.
+
+* Your knowledge (math, statistics, data analysis, risk, finance etc)
+
+
+## Agenda
+
+* Core Python programming
+
+* Data wrangling and visualization (pandas, matplotlib)
+
+* Basic scientific computing (numpy) / statistical modeling (statsmodel/scikit-learn)
+
+* Case studies (Data analyst interview, US treasury bonds)
+
+
+## Learning outcomes
+
+
+* Write simple Python programs using basic concepts of programming: variables, control flow, data structure, functions
+
+* Collect, process, analyze, visualize and draw conclusions from data using Python and its ecosystem
+
+* Identify a problem statement, gather information, plan a potential solution and report the results of a basic implementation
+
+* Implement programming best practices (code style and modularity, documentation) to deliver readable, maintainable, reusable code.
+
+## Why Python?
+
+* Designed for readability
+* Dynamic typing / Automatic memory management
+* Interactive
+* Ecosystem
+* A [‘glue’](https://wesmckinney.com/book/preliminaries#python_as_glue) language
+
+## Assessment/Grading
+
+* Ungraded programming exercises
+
+* Project with corresponding report and a live presentation in class
+
+## Project
+
+* A question or problem of your interest (the Motivation)
+
+* A data driven analysis: collecting, analysing, modeling (light) (the Solution)
+
+* A conclusion: main findings, impact, KPI, next steps (the Findings)
+
+* A report including code and text (Jupyter Notebook, additional code might be provided through a module/package)
+
+* In class 10-15 min presentation (to be adjusted given # of projects)
+
+* Individual or groups of XXX (to be determined)
+
+## My problem {.scrollable}
+
+ECB rose deposit rate from 0% (Jul 22, -0.50% before) to 4.00% (Sep 23) in order to 'tame' [inflation](https://www.ecb.europa.eu/stats/macroeconomic_and_sectoral/hicp/html/index.en.html).
+
+Since Sep 2023, inflation dropped by more than 2.5% and its outlook has improved markedly. 
+
+ECB started to lower rates (Jun 2024) and will likely continue to do so. 
+
+In the meantime, French banks pay almost 0% on current and saving accounts.
+
+```{python}
+import numpy as np
+import pandas as pd
+from bs4 import BeautifulSoup
+import requests
+
+url_ecb = 'https://www.ecb.europa.eu/stats/policy_and_exchange_rates/key_ecb_interest_rates/html/index.en.html'
+
+key_rates_html = requests.get(url_ecb)
+
+soup = BeautifulSoup(key_rates_html.content)
+main_block = soup.find_all('table')
+
+table_body = main_block[0].find_all('tbody')[0]
+table_tr = table_body.find_all('tr')
+
+columns = table_tr[0].find_all('td')[0]
+
+df = pd.DataFrame(columns=['Year',
+                           'DayMonth', 
+                           'Deposit',
+                           'MRO fixed',
+                           'MRO float',
+                           'Marginal'])
+
+for line in table_tr:
+    columns = line.find_all('td')
+
+    if(columns != []):
+        year = columns[0].text.strip()
+        date = columns[1].text.strip().split(".", 1)[0]
+        deposit = columns[2].text.strip().replace(chr(8722), chr(45))
+        # https://stackoverflow.com/questions/50529246/valueerror-could-not-convert-string-to-float-%E2%88%924-0
+        mro_fix = columns[3].text.strip().replace(chr(45), "").replace(chr(8722), chr(45))
+        mro_float = columns[4].text.strip().replace(chr(45), "").replace(chr(8722), chr(45))
+        marginal = columns[5].text.strip().replace(chr(8722), chr(45))
+
+        df = pd.concat([df,pd.DataFrame({'Year': year,
+                        'DayMonth': date, 
+                        'Deposit': deposit,
+                        'MRO fixed': mro_fix,
+                        'MRO float': mro_float,
+                        'Marginal': marginal}, index=[0])],
+                        ignore_index=True)
+
+
+df.loc[df.Year=='','Year'] = np.nan
+df['Year']  = df['Year'].ffill()
+
+df['Date'] = df['Year'] + " " + df['DayMonth']
+
+df.loc[df['MRO fixed']=='','MRO fixed'] = np.nan
+df.loc[df['MRO float']=='','MRO float'] = np.nan
+df['MRO'] = df['MRO fixed'].combine_first(df['MRO float'])
+
+df[['Deposit','MRO','Marginal']] = df[['Deposit','MRO','Marginal']].apply(pd.to_numeric, errors='coerce')
+
+df.loc[df.MRO=='','MRO'] = np.nan
+df['MRO']  = df['MRO'].ffill()
+
+df['Banks']  = 0
+
+df['Date'] = pd.to_datetime(df['Date'], format='%Y %d %b')
+
+df.plot(x='Date', y=['Deposit', 'MRO', 'Marginal', 'Banks'], drawstyle='steps-post')
+```
+
+## My problem {.scrollable}
+
+* Short-Term Investment Alternatives to saving accounts at 0% with 'low' risk?
+
+    * government-regulated savings account (Livret A)
+
+    * money market funds paying compounded [€STR](https://en.wikipedia.org/wiki/€STR) + margin (few basis points)
+
+    * short term (government) bonds
+
+* Last year: How to invest in (French governement) bonds, currently yielding ~ 3.5% at 1-2 Y maturities ?
+
+&rarr; ended up buying a ladder of corporate bonds at >= 4% yield (as French Gov bond not liquid for retail investors)
+
+* This year: Should I Hold or Sell some bonds before maturity? Which one?
+
+[A primer on Bonds](https://www.pimco.com/eu/en/resources/education/everything-you-need-to-know-about-bonds)
