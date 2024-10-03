@@ -14,3 +14,5 @@
 * Third lesson (Data analysis case study) with a proposed solution: [Open in Colab](https://githubtocolab.com/louis-olive/teaching_Python/blob/master/notebooks/03_real_estate_eda.ipynb)
 
 * Fourth lesson (US Treasury bonds case study) with case study instructions/material: [Open in Colab](https://githubtocolab.com/louis-olive/teaching_Python/blob/master/notebooks/04_US_treasury_bonds_wo_solutions.ipynb)
+
+* Fourth lesson (US Treasury bonds case study) with solutions: [Open in Colab](https://githubtocolab.com/louis-olive/teaching_Python/blob/master/notebooks/04_US_treasury_bonds.ipynb)
