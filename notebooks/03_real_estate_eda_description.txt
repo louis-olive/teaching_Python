@@ -1,0 +1,9 @@
+You work for a real estate company that would like to be more data-driven, and you are the main expert of data analysis in the company, so you are in a very strategic role at the moment.
+
+The CEO needs to decide whether it's worth entering in a new market or not. In order to do so in a data-informed decision, he asks your help to perform an Exploratory Data Analysis on the listing ads that have been published for a particular city, and provide insights that might be useful to understand how "hot" the market is, what are some characteristics of the market in terms of price and housing characteritics, etc.
+
+You are given a dataset containing real estate listings data taken from a particular website for a given province, along with additional tables to enrich the listings table with some extra details. You should focus your analysis only on the province town, not on the other cities belonging to the same province, and the only documentation that the data provider gave you is represented by the column names and the following information:
+- the column ad_layerlocation represents the anonymized zone of the corresponding city (e.g. for Rome the codes would correspond to "Coliseum", "Vatican", etc, but you would not be able to know which code)
+- the column layerlocation_area represents the extension of the zone
+
+Sensible variables have been anonymized with md5, so you should treat them just as you would treat the un-anonymized version (pretend you are working with Mordor data for example).
